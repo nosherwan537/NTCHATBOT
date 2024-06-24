@@ -1,13 +1,26 @@
+import os
 from flask import Blueprint, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 chat_bp = Blueprint('chat', __name__)
 CORS(chat_bp, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 mysql = MySQL()
+
+# Configure MySQL using environment variables
+def configure_mysql(app):
+    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
+    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+    app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
+    mysql.init_app(app)
 
 # Example training data with more variety
 conversations = [
@@ -57,10 +70,3 @@ def get_messages():
     messages = [{'id': row[0], 'sender': row[1], 'message': row[2], 'response': row[3], 'created_at': row[4].strftime('%Y-%m-%d %H:%M:%S')} for row in rows]
     cur.close()
     return jsonify({'messages': messages})
-
-def configure_mysql(app):
-    app.config['MYSQL_HOST'] = 'localhost'
-    app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = 'sq@nosho789'
-    app.config['MYSQL_DB'] = 'myappdb'
-    mysql.init_app(app)

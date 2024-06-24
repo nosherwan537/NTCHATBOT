@@ -1,16 +1,21 @@
+import os
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 auth_bp = Blueprint('auth', __name__)
 
-# Database connection
+# Database connection using environment variables
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="sq@nosho789",
-    database="myappdb"
+    host=os.getenv('MYSQL_HOST'),
+    user=os.getenv('MYSQL_USER'),
+    password=os.getenv('MYSQL_PASSWORD'),
+    database=os.getenv('MYSQL_DB')
 )
 
 # Create a cursor to interact with the database
